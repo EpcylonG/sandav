@@ -1,5 +1,7 @@
 package com.sandav.prueba.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sandav.prueba.model.Spaceship;
 import com.sandav.prueba.repository.SpaceshipRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/spaceships")
@@ -36,43 +40,77 @@ public class SpaceshipController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Spaceship> getById(@PathVariable Long id) {
-        //TODO calcular que sea un numero y no una letra
-        Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
+    public ResponseEntity<Spaceship> getById(@PathVariable String id) {
+        if (!id.matches("\\d+")) {
+            throw new IllegalArgumentException("El ID debe ser un número.");
+        }
+
+        Long idValue = Long.parseLong(id);
+
+        if (!spaceshipRepository.existsById(idValue)) {
+            throw new EntityNotFoundException("No se encontró ninguna nave espacial con el ID proporcionado.");
+        }
+
+        Spaceship spaceship = spaceshipRepository.findById(idValue).orElseThrow();
         return ResponseEntity.ok(spaceship);
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<Spaceship> getByName(@PathVariable String name) {
-        //TODO pasar a minuscula y que sea solo una parte del nombre
-        Spaceship spaceship = spaceshipRepository.findByName(name);
-        return ResponseEntity.ok(spaceship);
+    public ResponseEntity<List<Spaceship>> getByName(@PathVariable String name) {
+        List<Spaceship> spaceships = spaceshipRepository.findAllByNameContainingIgnoreCase(name.toLowerCase());
+
+        if (spaceships.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } 
+
+        return ResponseEntity.ok(spaceships);
     }
 
     @PostMapping("/")
     public ResponseEntity<Spaceship> create(@RequestBody Spaceship spaceship) {
-        //TODO ver que vengan todos los campos
+        if (spaceship.getName() == null || spaceship.getIsFilm() == null || spaceship.getFilmName() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (spaceship.getName().isEmpty() || spaceship.getFilmName().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return ResponseEntity.ok(spaceshipRepository.save(spaceship));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        //TODO ver que el que quieres eliminar existe
-        Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
-        spaceshipRepository.delete(spaceship);
-        return ResponseEntity.ok("Spaceship with ID: " + id + " was deleted");
+    public ResponseEntity<String> delete(@PathVariable String id) {
+        try {
+
+            Long spaceshipId = Long.parseLong(id);
+
+            if (spaceshipRepository.existsById(spaceshipId)) {
+                spaceshipRepository.deleteById(spaceshipId);
+                return ResponseEntity.ok("Spaceship with ID: " + id + " was deleted");
+            }
+            return ResponseEntity.notFound().build();
+
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("ID must be a valid number");
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Spaceship> update(@PathVariable Long id, @RequestBody Spaceship newSpaceship) {
         Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
 
-        //TODO si no viene un valor, coge el que tiene por defecto
-        spaceship.setName(newSpaceship.getName());
-        spaceship.setIsFilm(newSpaceship.getIsFilm());
-        spaceship.setFilmName(newSpaceship.getFilmName());
+        if (newSpaceship.getName() != null) {
+            spaceship.setName(newSpaceship.getName());
+        }
+        if (newSpaceship.getIsFilm() != null) {
+            spaceship.setIsFilm(newSpaceship.getIsFilm());
+        }
+        if (newSpaceship.getFilmName() != null) {
+            spaceship.setFilmName(newSpaceship.getFilmName());
+        }
 
-        Spaceship productoActualizado = spaceshipRepository.save(spaceship);
-        return ResponseEntity.ok(productoActualizado);
+        Spaceship spaceshipActualizado = spaceshipRepository.save(spaceship);
+        return ResponseEntity.ok(spaceshipActualizado);
     }
 }
