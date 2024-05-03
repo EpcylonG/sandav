@@ -25,11 +25,15 @@ import com.sandav.prueba.service.SpaceshipService;
 @RequestMapping("/spaceships")
 public class SpaceshipController {
     
-    @Autowired
     private SpaceshipRepository spaceshipRepository;
 
-    @Autowired
     private SpaceshipService spaceshipService;
+
+    @Autowired
+    public SpaceshipController(SpaceshipRepository spaceshipRepository, SpaceshipService spaceshipService) {
+        this.spaceshipRepository = spaceshipRepository;
+        this.spaceshipService = spaceshipService;
+    }
 
     @GetMapping("/")
      public Page<Spaceship> getAll(@RequestParam(required = false) Integer page,

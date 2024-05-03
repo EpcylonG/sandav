@@ -11,14 +11,17 @@ import jakarta.persistence.EntityNotFoundException;
 @Service
 public class SpaceshipService {
 
+    private SpaceshipRepository spaceshipRepository;
+
     @Autowired
-    SpaceshipRepository spaceshipRepository;
+    public SpaceshipService(SpaceshipRepository spaceshipRepository) {
+        this.spaceshipRepository = spaceshipRepository;
+    }
     
     public Spaceship findById(String idValue){
         try{
             Long id = checkId(idValue);
-            Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
-            return spaceship;
+            return spaceshipRepository.findById(id).orElseThrow();
         } catch (EntityNotFoundException e){
             throw new EntityNotFoundException();
         }
@@ -63,8 +66,7 @@ public class SpaceshipService {
         if (!id.matches("\\d+")) {
             throw new NumberFormatException();
         }
-        Long idValue = Long.parseLong(id);
 
-        return idValue;
+        return Long.parseLong(id);
     }
 }
