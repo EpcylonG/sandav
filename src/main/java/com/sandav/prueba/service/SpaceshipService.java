@@ -15,13 +15,13 @@ public class SpaceshipService {
     SpaceshipRepository spaceshipRepository;
     
     public Spaceship findById(String idValue){
-        Long id = checkId(idValue);
-        if (!spaceshipRepository.existsById(id)) {
+        try{
+            Long id = checkId(idValue);
+            Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
+            return spaceship;
+        } catch (EntityNotFoundException e){
             throw new EntityNotFoundException();
         }
-        Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
-
-        return spaceship;
     }
 
     public boolean create(Spaceship spaceship){
