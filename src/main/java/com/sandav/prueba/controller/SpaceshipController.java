@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sandav.prueba.model.Spaceship;
 import com.sandav.prueba.repository.SpaceshipRepository;
-import com.sandav.prueba.utils.LoggerController;
-
-import jakarta.persistence.EntityNotFoundException;
+import com.sandav.prueba.service.SpaceshipService;
 
 @RestController
 @RequestMapping("/spaceships")
@@ -30,7 +28,8 @@ public class SpaceshipController {
     @Autowired
     private SpaceshipRepository spaceshipRepository;
 
-    private LoggerController logger = new LoggerController();
+    @Autowired
+    private SpaceshipService spaceshipService;
 
     @GetMapping("/")
      public Page<Spaceship> getAll(@RequestParam(required = false) Integer page,
@@ -44,22 +43,7 @@ public class SpaceshipController {
 
     @GetMapping("/id/{id}")
     public ResponseEntity<Spaceship> getById(@PathVariable String id) {
-        if (!id.matches("\\d+")) {
-            throw new IllegalArgumentException();
-        }
-
-        Long idValue = Long.parseLong(id);
-
-        if (idValue <= 0){
-            logger.info("El id introducido es negativo.");
-        }
-
-        if (!spaceshipRepository.existsById(idValue)) {
-            throw new EntityNotFoundException();
-        }
-
-        Spaceship spaceship = spaceshipRepository.findById(idValue).orElseThrow();
-        return ResponseEntity.ok(spaceship);
+        return ResponseEntity.ok(spaceshipService.findById(id));
     }
 
     @GetMapping("/{name}")
@@ -75,49 +59,32 @@ public class SpaceshipController {
 
     @PostMapping("/")
     public ResponseEntity<Spaceship> create(@RequestBody Spaceship spaceship) {
-        if (spaceship.getName() == null || spaceship.getIsFilm() == null || spaceship.getFilmName() == null) {
-            return ResponseEntity.badRequest().build();
+        if(spaceshipService.create(spaceship)){
+            return ResponseEntity.ok(spaceship);
         }
 
-        if (spaceship.getName().isEmpty() || spaceship.getFilmName().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(spaceshipRepository.save(spaceship));
+        return ResponseEntity.badRequest().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable String id) {
-        try {
-
-            Long spaceshipId = Long.parseLong(id);
-
-            if (spaceshipRepository.existsById(spaceshipId)) {
-                spaceshipRepository.deleteById(spaceshipId);
-                return ResponseEntity.ok("Spaceship with ID: " + id + " was deleted");
-            }
+        this.spaceshipService.delete(id);
+        if(spaceshipService.findById(id) == null) {
             return ResponseEntity.notFound().build();
-
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body("ID must be a valid number");
         }
+
+        return ResponseEntity.ok().body("Eliminado correctamente");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Spaceship> update(@PathVariable Long id, @RequestBody Spaceship newSpaceship) {
-        Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
-
-        if (newSpaceship.getName() != null) {
-            spaceship.setName(newSpaceship.getName());
-        }
-        if (newSpaceship.getIsFilm() != null) {
-            spaceship.setIsFilm(newSpaceship.getIsFilm());
-        }
-        if (newSpaceship.getFilmName() != null) {
-            spaceship.setFilmName(newSpaceship.getFilmName());
-        }
-
-        Spaceship spaceshipActualizado = spaceshipRepository.save(spaceship);
-        return ResponseEntity.ok(spaceshipActualizado);
+    public ResponseEntity<Spaceship> update(@PathVariable String id, @RequestBody Spaceship newSpaceship) {
+        return ResponseEntity.ok(spaceshipService.update(id, newSpaceship));
     }
 }
+
+/*
+ * Utilizar cachés de algún tipo.
+ * 
+ * Docker
+ * Swagger
+ */

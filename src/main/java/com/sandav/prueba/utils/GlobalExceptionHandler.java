@@ -20,9 +20,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado la entidad deseada.");
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El valor introducido no es el esperado.");
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<String> handleNumberFormatException(NumberFormatException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El valor introducido no es un número válido.");
     }
 
 }

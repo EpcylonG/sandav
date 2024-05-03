@@ -12,7 +12,7 @@ public class Spaceship {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private Boolean bIsFilm;
+    private boolean bIsFilm;
     private String filmName;
 
     public Long getId() {
