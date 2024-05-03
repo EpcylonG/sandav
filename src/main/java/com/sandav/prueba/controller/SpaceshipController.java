@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sandav.prueba.model.Spaceship;
 import com.sandav.prueba.repository.SpaceshipRepository;
+import com.sandav.prueba.utils.LoggerController;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -28,6 +29,8 @@ public class SpaceshipController {
     
     @Autowired
     private SpaceshipRepository spaceshipRepository;
+
+    private LoggerController logger = new LoggerController();
 
     @GetMapping("/")
      public Page<Spaceship> getAll(@RequestParam(required = false) Integer page,
@@ -42,13 +45,17 @@ public class SpaceshipController {
     @GetMapping("/id/{id}")
     public ResponseEntity<Spaceship> getById(@PathVariable String id) {
         if (!id.matches("\\d+")) {
-            throw new IllegalArgumentException("El ID debe ser un número.");
+            throw new IllegalArgumentException();
         }
 
         Long idValue = Long.parseLong(id);
 
+        if (idValue <= 0){
+            logger.info("El id introducido es negativo.");
+        }
+
         if (!spaceshipRepository.existsById(idValue)) {
-            throw new EntityNotFoundException("No se encontró ninguna nave espacial con el ID proporcionado.");
+            throw new EntityNotFoundException();
         }
 
         Spaceship spaceship = spaceshipRepository.findById(idValue).orElseThrow();
