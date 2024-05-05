@@ -92,7 +92,7 @@ public class SpaceshipController {
             return ResponseEntity.notFound().build();
         }
 
-        cache.remove(cache.get(CACHE_VALUE));
+        cache.remove(CACHE_VALUE);
 
         return ResponseEntity.ok().body("Eliminado correctamente");
     }

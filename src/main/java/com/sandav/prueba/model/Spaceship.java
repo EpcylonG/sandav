@@ -14,7 +14,7 @@ public class Spaceship {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private boolean bIsFilm;
+    private boolean isFilm;
     private String filmName;
 
     public Long getId() {
@@ -30,10 +30,10 @@ public class Spaceship {
         this.name = name;
     }
     public Boolean getIsFilm() {
-        return bIsFilm;
+        return isFilm;
     }
-    public void setIsFilm(Boolean bIsFilm) {
-        this.bIsFilm = bIsFilm;
+    public void setIsFilm(Boolean isFilm) {
+        this.isFilm = isFilm;
     }
     public String getFilmName() {
         return filmName;
