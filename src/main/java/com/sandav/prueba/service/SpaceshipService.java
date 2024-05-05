@@ -29,7 +29,7 @@ public class SpaceshipService {
 
     public boolean create(Spaceship spaceship){
         if ((spaceship.getName() == null || spaceship.getIsFilm() == null || spaceship.getFilmName() == null) ||
-            (spaceship.getName().isEmpty() || spaceship.getFilmName().isEmpty())) {
+            (spaceship.getId() <= 0 || spaceship.getName().isEmpty() || spaceship.getFilmName().isEmpty())) {
             return false;
         }
 

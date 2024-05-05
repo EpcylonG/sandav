@@ -38,6 +38,8 @@ public class SpaceshipController {
 
     private LoggerController logger;
 
+    static final String CACHE_VALUE = "NEW_SPACESHIP";
+
     @Autowired
     public SpaceshipController(SpaceshipRepository spaceshipRepository, SpaceshipService spaceshipService) {
         this.spaceshipRepository = spaceshipRepository;
@@ -45,10 +47,10 @@ public class SpaceshipController {
     }
 
     @GetMapping("/")
-     public Page<Spaceship> getAll(@RequestParam(required = false) Integer page,
+    public Page<Spaceship> getAll(@RequestParam(required = false) Integer page,
                                    @RequestParam(required = false) Integer size) {
         if(page != null && size != null){
-            logger.info(cache.get("new_spaceship").toString());
+            logger.info(cache.get(CACHE_VALUE).toString());
             PageRequest pageable = PageRequest.of(page, size);
             return spaceshipRepository.findAll(pageable);
         }
@@ -75,7 +77,7 @@ public class SpaceshipController {
     public ResponseEntity<Spaceship> create(@RequestBody Spaceship spaceship) {
         if(spaceshipService.create(spaceship)){
             cache = new ConcurrentHashMap<>();
-            cache.put("new_spaceship", spaceship);
+            cache.put(CACHE_VALUE, spaceship);
             return ResponseEntity.ok(spaceship);
         }
 
@@ -90,7 +92,7 @@ public class SpaceshipController {
             return ResponseEntity.notFound().build();
         }
 
-        cache.remove(cache.get("new_spaceship"));
+        cache.remove(cache.get(CACHE_VALUE));
 
         return ResponseEntity.ok().body("Eliminado correctamente");
     }
