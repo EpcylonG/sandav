@@ -1,6 +1,8 @@
 package com.sandav.prueba.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sandav.prueba.model.Spaceship;
 import com.sandav.prueba.repository.SpaceshipRepository;
 import com.sandav.prueba.service.SpaceshipService;
+import com.sandav.prueba.utils.LoggerController;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/spaceships")
@@ -28,6 +33,10 @@ public class SpaceshipController {
     private SpaceshipRepository spaceshipRepository;
 
     private SpaceshipService spaceshipService;
+
+    private Map<String, Object> cache;
+
+    private LoggerController logger;
 
     @Autowired
     public SpaceshipController(SpaceshipRepository spaceshipRepository, SpaceshipService spaceshipService) {
@@ -39,6 +48,7 @@ public class SpaceshipController {
      public Page<Spaceship> getAll(@RequestParam(required = false) Integer page,
                                    @RequestParam(required = false) Integer size) {
         if(page != null && size != null){
+            logger.info(cache.get("new_spaceship").toString());
             PageRequest pageable = PageRequest.of(page, size);
             return spaceshipRepository.findAll(pageable);
         }
@@ -51,19 +61,21 @@ public class SpaceshipController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<List<Spaceship>> getByName(@PathVariable String name) {
+    public ResponseEntity<List<Spaceship>> getByName(@PathVariable String name, HttpServletResponse response) {
         List<Spaceship> spaceships = spaceshipRepository.findAllByNameContainingIgnoreCase(name.toLowerCase());
 
         if (spaceships.isEmpty()) {
             return ResponseEntity.notFound().build();
         } 
-
+        response.setHeader("Cache-Control", "max-age=120");
         return ResponseEntity.ok(spaceships);
     }
 
     @PostMapping("/")
     public ResponseEntity<Spaceship> create(@RequestBody Spaceship spaceship) {
         if(spaceshipService.create(spaceship)){
+            cache = new ConcurrentHashMap<>();
+            cache.put("new_spaceship", spaceship);
             return ResponseEntity.ok(spaceship);
         }
 
@@ -74,8 +86,11 @@ public class SpaceshipController {
     public ResponseEntity<String> delete(@PathVariable String id) {
         this.spaceshipService.delete(id);
         if(spaceshipService.findById(id) == null) {
+            cache.clear();
             return ResponseEntity.notFound().build();
         }
+
+        cache.remove(cache.get("new_spaceship"));
 
         return ResponseEntity.ok().body("Eliminado correctamente");
     }
@@ -85,10 +100,3 @@ public class SpaceshipController {
         return ResponseEntity.ok(spaceshipService.update(id, newSpaceship));
     }
 }
-
-/*
- * Utilizar cachés de algún tipo.
- * 
- * Docker
- * Swagger
- */

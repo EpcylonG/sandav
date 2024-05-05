@@ -1,11 +1,13 @@
 package com.sandav.prueba.model;
 
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
+@Cacheable
 public class Spaceship {
 
     @Id
