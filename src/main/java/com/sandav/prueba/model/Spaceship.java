@@ -32,7 +32,7 @@ public class Spaceship {
     public Boolean getIsFilm() {
         return bIsFilm;
     }
-    public void setIsFilm(boolean bIsFilm) {
+    public void setIsFilm(Boolean bIsFilm) {
         this.bIsFilm = bIsFilm;
     }
     public String getFilmName() {

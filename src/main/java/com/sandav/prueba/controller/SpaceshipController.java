@@ -2,6 +2,7 @@ package com.sandav.prueba.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,7 @@ public class SpaceshipController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable String id) {
         this.spaceshipService.delete(id);
-        if(spaceshipService.findById(id) == null) {
+        if(spaceshipRepository.existsById(Long.parseLong(id))) {
             cache.clear();
             return ResponseEntity.notFound().build();
         }

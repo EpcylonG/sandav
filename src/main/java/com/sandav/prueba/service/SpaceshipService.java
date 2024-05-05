@@ -19,22 +19,16 @@ public class SpaceshipService {
     }
     
     public Spaceship findById(String idValue){
-        try{
-            Long id = checkId(idValue);
-            return spaceshipRepository.findById(id).orElseThrow();
-        } catch (EntityNotFoundException e){
-            throw new EntityNotFoundException();
-        }
+        Long id = checkId(idValue);
+        return spaceshipRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public boolean create(Spaceship spaceship){
         if ((spaceship.getName() == null || spaceship.getIsFilm() == null || spaceship.getFilmName() == null) ||
-            (spaceship.getId() <= 0 || spaceship.getName().isEmpty() || spaceship.getFilmName().isEmpty())) {
+            (spaceship.getName().isEmpty() || spaceship.getFilmName().isEmpty())) {
             return false;
         }
-
         spaceshipRepository.save(spaceship);
-
         return true;
     }
 
@@ -47,7 +41,7 @@ public class SpaceshipService {
 
     public Spaceship update(String idValue, Spaceship newSpaceship){
         Long id = checkId(idValue);
-        Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow();
+        Spaceship spaceship = spaceshipRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         
         if (newSpaceship.getName() != null) {
             spaceship.setName(newSpaceship.getName());

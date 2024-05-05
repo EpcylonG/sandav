@@ -21,7 +21,7 @@ import com.sandav.prueba.repository.SpaceshipRepository;
 import com.sandav.prueba.service.SpaceshipService;
 
 @ExtendWith(MockitoExtension.class)
-public class SpaceshipServiceTest {
+class SpaceshipServiceTest {
 
     @Mock
     private SpaceshipRepository spaceshipRepository;
@@ -30,20 +30,21 @@ public class SpaceshipServiceTest {
     private SpaceshipService spaceshipService;
 
     @Test
-    public void testFindById() {
+    void testFindById() {
         Long id = 1L;
         Spaceship spaceship = new Spaceship();
         spaceship.setId(id);
         when(spaceshipRepository.findById(id)).thenReturn(Optional.of(spaceship));
 		
-        Spaceship result = spaceshipService.findById(String.valueOf(id));
+        Spaceship result = spaceshipService.findById("1");
 
         assertEquals(spaceship, result);
     }
 
 	@Test
-	public void testCreateSuccess() {
+	void testCreateSuccess() {
 		Spaceship spaceship = new Spaceship();
+		spaceship.setId(1L);
 		spaceship.setName("X-Wing");
 		spaceship.setIsFilm(true);
 		spaceship.setFilmName("Star Wars");
@@ -56,7 +57,7 @@ public class SpaceshipServiceTest {
 	}
 
 	@Test
-	public void testCreateFailed() {
+	void testCreateFailed() {
 		Spaceship spaceship = new Spaceship();
 
 		boolean result = spaceshipService.create(spaceship);
@@ -65,7 +66,7 @@ public class SpaceshipServiceTest {
 	}
 
 	@Test
-	public void testDeleteSuccess() {
+	void testDeleteSuccess() {
 		Long id = 1L;
 		when(spaceshipRepository.existsById(id)).thenReturn(true);
 
@@ -75,7 +76,7 @@ public class SpaceshipServiceTest {
 	}
 
 	@Test
-	public void testDeleteFailed() {
+	void testDeleteFailed() {
 		Long id = 1L;
 		when(spaceshipRepository.existsById(id)).thenReturn(false);
 
@@ -85,7 +86,7 @@ public class SpaceshipServiceTest {
 	}
 
 	@Test
-	public void testUpdateSuccess() {
+	void testUpdateSuccess() {
 		Long id = 1L;
 		Spaceship existingSpaceship = new Spaceship();
 		existingSpaceship.setId(id);
